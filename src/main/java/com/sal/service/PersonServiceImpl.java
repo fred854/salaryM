@@ -79,8 +79,9 @@ public class PersonServiceImpl implements PersonService {
             ehcacheUtils.put(cacheName,key,user);
             System.out.println("使用key:" + key + ",查询二级缓存 redis 获取到ehUser:" + JSONObject.toJSONString(user));
             return user;
+
         }
-        // 3. 如果二级缓存redis中也没有数据,查询数据库
+        // 3. 如果二级缓存redis中也没有数据,查询数据库1
         Person user=personMapper.getPerson(id);
         if(user==null){
            throw new MyException(500,"获取失败！");
