@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sal.dao.PositionMapper">
+    <select id="selectPositionAll" resultType="Position">
+        SELECT * FROM `position`
+    </select>
+
+    <delete id="deletePosition" parameterType="int">
+        DELETE FROM `position` WHERE `position_id`=#{position_id}
+    </delete>
+
+    <update id="updatePosition" parameterType="Position">
+        UPDATE `position` SET `position_name`=#{position_name} WHERE `position_id`=#{position_id}
+    </update>
+
+    <insert id="addPosition" parameterType="Position">
+        INSERT INTO `position` (`position_name`)
+        VALUES
+        (
+        #{position_name}
+        );
+    </insert>
+</mapper>

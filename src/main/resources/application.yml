@@ -1,0 +1,43 @@
+spring:
+  thymeleaf:
+    mode: HTML5
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    cache: false
+
+  redis:
+    database: 0
+    host: 132.232.44.194
+    port: 6379
+    password: 123456
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    timeout: 10000
+
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/salary_m?characterEncoding=utf-8
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+  devtools:
+    restart:
+      enabled: true
+
+mybatis:
+   type-aliases-package: com.sal.pojo
+   mapper-locations: classpath:mapper/*.xml
+
+cache:
+  type: ehcache
+  ehcache:
+    config: classpath:ehcache.xml
+

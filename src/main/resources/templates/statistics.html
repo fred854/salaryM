@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>工资统计</title>
+    <script src="../scripts/jquery.min.js"></script>
+    <script src="../scripts/vue.min.js"></script>
+    <script src="../scripts/axios.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-select.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/defaults-zh_CN.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-datepicker.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-datepicker.zh-CN.js"></script>
+    <link href="../styles/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <link href="../styles/bootstrap-select.min.css" rel="stylesheet">
+    <link href="../styles/bootstrap-datepicker3.css" rel="stylesheet">
+    <link href="../styles/home.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="page-header" id="top">
+    <div class="ti">
+        <h1>工资管理系统<br><small>{{huan}}</small></h1>
+        <span class="text-danger zu"><a href="logout">注销</a></span>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-2">
+            <ul class="nav nav-pills nav-stacked" style="width:120px">
+                <li role="presentation" ><a href="home">部门管理</a></li>
+                <li role="presentation" ><a href="position">职称管理</a></li>
+                <li role="presentation"  ><a href="salaryKind">工资类别管理</a></li>
+                <li role="presentation" ><a href="person">人员管理</a></li>
+                <li role="presentation" ><a href="salary">人员工资管理</a></li>
+                <li role="presentation" class="active"><a href="statistics">工资统计</a></li>
+            </ul>
+
+        </div>
+        <div class="col-xs-10 ">
+            <div id="app">
+                <div class="panel panel-info">
+                    <div class="panel-heading">职称信息</div>
+                    <div class="panel-body">
+                        <ul id="myTab" class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#avgDepartment" data-toggle="tab">
+                                   部门平均月工资
+                                </a>
+                            </li>
+                            <li><a href="#avgPerson" data-toggle="tab">人平均月工资</a></li>
+                            <li>
+                                <a href="#avgSalary" data-toggle="tab">总平均月工资
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane fade in active" id="avgDepartment">
+                                <br>
+                                <div class="row">
+                                <div class="col-xs-2">
+                                    <input type="text" class="form-control" placeholder="年份" v-model="depart_year" />
+                                </div>
+                                    <button type="button" class="btn btn-success" v-on:click="selectavgDepartment">查询</button>
+                                </div>
+                                <br>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <th>部门ID</th>
+                                    <th>部门名称</th>
+                                    <th>部门平均月工资</th>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="a in avgdepart">
+                                        <td>{{a.department_id}}</td>
+                                        <td>{{a.department_name}}</td>
+                                        <td>{{a.avg_salary}}</td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+                            <div class="tab-pane fade" id="avgPerson">
+                                <br>
+                                <div class="row">
+                                    <div class="col-xs-2">
+                                        <input type="text" class="form-control" placeholder="年份" v-model="per_year" />
+                                    </div>
+                                    <button type="button" class="btn btn-success" v-on:click="selectavgPerson">查询</button>
+                                </div>
+                                <br>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <th>人员ID</th>
+                                    <th>人员名字</th>
+                                    <th>所属部门</th>
+                                    <th>职称</th>
+                                    <th>平均月工资</th>
+                                    <th>年份</th>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="b in avgperson">
+                                        <td>{{b.person_id}}</td>
+                                        <td>{{b.person_name}}</td>
+                                        <td>{{b.department_name}}</td>
+                                        <td>{{b.position_name}}</td>
+                                        <td>{{b.amount}}</td>
+                                        <td>{{b.year}}</td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="avgSalary">
+                                <br>
+                                <div class="row">
+                                    <div class="col-xs-2">
+                                        <input type="text" class="form-control" placeholder="年份" v-model="sal_year" />
+                                    </div>
+                                    <button type="button" class="btn btn-success" v-on:click="selectavgSalary">查询</button>
+                                </div>
+                                <br>
+                                <div class="col-xs-5">
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <th>总平均月工资</th>
+                                    <th ref="c"></th>
+                                    </thead>
+
+
+                                </table>
+                                </div>
+                            </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    axios.defaults.withCredentials = true;
+
+    var t=new Vue({
+        el:'#top',
+        data:{
+            huan:''
+        },
+        mounted:function(){
+            this.huan="欢迎您，"+sessionStorage.getItem("username");
+        }
+    })
+
+
+    //ViewModel
+    var de=new Vue({
+        el: '#app',
+        data:{
+            avgdepart:[],
+            depart_year:'',
+            avgperson:[],
+            per_year:'',
+            avgsalary:'',
+            sal_year:'',
+            page:{}
+
+        },
+        mounted:function(){
+        },
+        methods: {
+            selectavgDepartment:function () {
+                var url="salary/avgdepartment/"+this.depart_year;
+                axios.get(url).then(function(response){
+                    de.page=response.data;
+                    console.log(de.page);
+                    de.avgdepart=response.data.object;
+                })
+            },
+            selectavgPerson:function () {
+                var url="salary/avgperson/"+this.per_year;
+                axios.get(url).then(function(response){
+                    de.page=response.data;
+                    console.log(de.page);
+                    de.avgperson=response.data.object;
+                })
+            },
+            selectavgSalary:function () {
+                var url="salary/avgsalary/"+this.sal_year;
+                var _this = this;
+                axios.get(url).then(function(response){
+                    de.page=response.data;
+                    console.log(de.page);
+                    _this.$refs.c.innerHTML=response.data.object;
+                })
+            }
+
+
+        }
+    })
+
+</script>
+</body>
+</html>

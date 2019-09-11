@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="../scripts/jquery.min.js"></script>
+    <script src="../scripts/vue.min.js"></script>
+    <script src="../scripts/axios.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <link href="../styles/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+
+ 
+</head>
+<body>
+<div class="page-header" id="top">
+  <h1>工资管理系统<br><small>{{huan}}</small></h1>
+</div>
+<div class="container">
+    <div class="row">
+       <div class="col-xs-2">
+   <ul class="nav nav-pills nav-stacked" style="width:100px">
+  <li role="presentation" class="active"><a href="home2.html">部门管理</a></li>
+  <li role="presentation"><a href="#">职称管理</a></li>
+  <li role="presentation"><a href="#">工资类别管理</a></li>
+  
+  </ul>
+  
+     </div>
+     <div class="col-xs-10 ">
+     <div class="panel panel-info">
+  <div class="panel-heading">部门信息</div>
+  <div class="panel-body">
+    
+     <div id="app">
+        <table class="table table-bordered">
+  <thead>
+     <th>部门ID</th>
+     <th>部门名</th>
+     <th>操作</th>
+  </thead>
+  <tbody>
+     <tr v-for="elen in departments">
+       <td>{{elen.department_id}}</td>
+       <td>{{elen.department_name}}</td>
+       <td>
+         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" @click="updateDepartment(elen.department_id,elen.department_name)">修改</button>
+          <a href="#nowhere" @click="deleteDepartment(elen.department_id)"><button type="button" class="btn btn-danger">删除</button></a>
+       </td>
+     </tr>
+     
+     
+  </tbody>
+   
+</table>
+    
+   <span class="label label-primary">添加</span><br>
+        <div class="col-xs-4"><input type="text" class="form-control" placeholder="部门名称" v-model="depart.department_name" /></div><button type="button" class="btn btn-success" v-on:click="add">增加</button>
+
+
+         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+             <div class="modal-dialog">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                         <h4 class="modal-title">修改</h4>
+                     </div>
+                     <div class="modal-body">
+                         <p>修改部门</p>
+                         <input type="text" class="form-control" v-model="up.department_name"/>
+
+                     </div>
+                     <div class="modal-footer">
+                         <span ref="tip" class="text-primary"></span>
+                         <button data-dismiss="modal" class="btn btn-default" type="button">关闭</button>
+                         <button class="btn btn-primary" type="button" @click="commit()">提交</button>
+                     </div>
+                 </div><!-- /.modal-content -->
+             </div><!-- /.modal-dialog -->
+         </div>
+
+    </div>
+</div>
+
+     </div>
+  </div>
+  
+  </div>
+</div>
+   <script type="text/javascript">
+       axios.defaults.withCredentials = true;
+
+       var t=new Vue({
+           el:'#top',
+           data:{
+               huan:''
+           },
+           mounted:function(){
+             this.huan="欢迎您，"+sessionStorage.getItem("username");
+           }
+       })
+
+
+     //ViewModel
+     var de=new Vue({
+    	 el: '#app',
+    	 data:{
+             departments:[],
+             depart: { id: 0, department_name: '' },
+             page:{},
+             up: { department_id: 0,department_name:'' }
+    	 },
+    	 mounted:function(){
+    		 this.list(1);
+
+    	 },
+    	 methods: {
+    		 list: function(start){
+    			 var url="department/departmentall";
+    			 axios.get(url).then(function(response){
+    				 de.page=response.data;
+    				 console.log(de.page);
+    				 de.departments=response.data.object;
+    			 })
+    		 },
+    		 add: function(event) {
+    			 var url="department/adddepartment";
+    			 axios.post(url,this.depart).then(function(response){
+    				 de.list(1);
+    				 de.depart= { id: 0, department_name: '' }
+    			 });
+    		 },
+             deleteDepartment: function (id) {
+                 var url = "department/deletedepartment/"+id;
+                 axios.get(url).then(function(response){
+                     de.list(1);
+                 });
+             },
+             updateDepartment: function (id,name) {
+                  de.up.department_id=id;
+                  de.up.department_name=name;
+             },
+             commit: function () {
+                 var url="department/updatedepartment";
+                 var _this = this;
+                 axios.post(url,this.up).then(function(response){
+                     var res=response.data;
+                     console.log(res);
+                     _this.$refs.tip.innerHTML = res.msg;
+                     de.list(1);
+                     de.up= { department_id: 0, department_name: '' }
+                 });
+             }
+
+    		 
+    	 }
+     })
+   
+   </script>
+</body>
+</html>

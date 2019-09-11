@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <script src="../scripts/jquery.min.js"></script>
+    <script src="../scripts/vue.min.js"></script>
+    <script src="../scripts/axios.min.js"></script>
+    <script src="../scripts/vue-router.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <link href="../styles/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+
+
+</head>
+<body>
+<div class="page-header">
+    <h1>工资管理系统<small>副标题</small></h1>
+</div>
+<div class="container" id="app">
+
+    <div class="row">
+        <div class="col-xs-2">
+
+    <div class="menu">
+        <ul class="nav nav-pills nav-stacked" style="width:100px">
+            <li role="presentation"><router-link to="/user"><a>部门管理</a></router-link></li>
+            <li role="presentation"><router-link to="/product"><a>职称管理</a></router-link></li>
+            <li role="presentation"><router-link to="/order"><a >工资类别管理</a></router-link></li>
+        </ul>
+    </div>
+
+     </div>
+
+        <div class="col-xs-10 ">
+    <div class="workingRoom">
+        <router-view></router-view>
+    </div>
+        </div>
+
+    </div>
+    </div>
+
+
+
+<script type="text/javascript">
+    /*
+   * 申明三个模板( html 片段 )
+   */
+    var user = { template: '<p>用户管理页面的内容</p>' };
+    var second = { template: '<p>产品管理页面的内容</p>' };
+    var order = { template: '<p>订单管理页面的内容</p>' };
+    Vue.component('message',{
+        template:''
+    })
+    /*
+    * 定义路由
+    */
+    var routes = [
+        { path: '/', redirect: '/user'}, // 这个表示会默认渲染 /user，没有这个就是空白
+        { path: '/user', component: user },
+        { path: '/product', component: second },
+        { path: '/order', component: order }
+    ];
+    /*
+    * 创建VueRouter实例
+    */
+    var router = new VueRouter({
+        routes:routes
+    });
+    /*
+    * 给vue对象绑定路由
+    */
+    new Vue({
+        el:"#app",
+        router
+    })
+
+</script>
+</body>
+</html>

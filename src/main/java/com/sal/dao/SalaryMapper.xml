@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sal.dao.SalaryMapper">
+    <select id="selectSalaryAll" resultType="Salary">
+         SELECT `salary_id`,
+            `person_id`,
+         `person_name`,
+         `salary_kind_name`,
+        `department_name`,
+         `amount`,
+         `year`,
+        `month`
+         FROM
+         `salary`,`person`,`salary_kind`,`department`
+         WHERE
+         `for_person_id`=`person_id` AND `for_salary_kind_id`=`salary_kind_id` AND `for_department_id`=`department_id`
+    </select>
+
+    <insert id="addSalary" parameterType="Salary">
+         INSERT INTO `salary`
+         (`for_person_id`,
+         `for_salary_kind_id`,
+         `amount`,
+          `year`,
+          `month`
+         )VALUES (
+         #{for_person_id},
+         #{for_salary_kind_id},
+         #{amount},
+         #{year},
+        #{month}
+         )
+    </insert>
+
+    <delete id="deleteSalary" parameterType="int">
+         DELETE FROM `salary` WHERE `salary_id`=#{salary_id}
+    </delete>
+
+    <update id="updateSalary" parameterType="salary">
+         UPDATE `salary` SET
+         `for_salary_kind_id`=#{for_salary_kind_id},
+         `amount`=#{amount},
+         `year`=#{year},
+        `month`=#{month}
+         WHERE `salary_id`=#{salary_id}
+    </update>
+
+    <select id="avgDepartment" parameterType="String" resultType="DepartmentSalary">
+        SELECT `department_id`,`department_name`,convert(SUM(`amount`)/12,decimal(15,2)) as `avg_salary`
+        FROM `salary`,`department`,`person`
+        WHERE
+            `for_person_id`=`person_id` AND `for_department_id`=`department_id` AND
+            `year`=#{year}
+        GROUP BY `department_name`
+    </select>
+
+    <select id="avgPerson" parameterType="String" resultType="Salary">
+        SELECT `person_id`,
+               `person_name`,
+               `department_name`,
+               `position_name`,
+               convert(SUM(`amount`)/12,decimal(15,2))as `amount`,
+               `year`
+        FROM  `salary`,`person`,`department`,`position`
+        WHERE `for_person_id`=`person_id` AND `for_department_id`=`department_id` AND `position_id`=`for_position_id` AND `year`=#{year}
+        GROUP BY `person_id`
+    </select>
+
+    <select id="avgSalary" parameterType="String" resultType="double">
+        SELECT convert(SUM(`amount`)/12/( SELECT COUNT(*) FROM `person`),decimal(15,2))as `amount`
+        FROM `salary`
+        WHERE `year`=#{year}
+    </select>
+</mapper>

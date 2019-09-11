@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>人员工资管理</title>
+    <script src="../scripts/jquery.min.js"></script>
+    <script src="../scripts/vue.min.js"></script>
+    <script src="../scripts/axios.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-select.min.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/defaults-zh_CN.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-datepicker.js"></script>
+    <script src="../scripts/bootstrap/3.3.6/bootstrap-datepicker.zh-CN.js"></script>
+    <link href="../styles/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <link href="../styles/bootstrap-select.min.css" rel="stylesheet">
+    <link href="../styles/bootstrap-datepicker3.css" rel="stylesheet">
+    <link href="../styles/home.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="page-header" id="top">
+    <div class="ti">
+        <h1>工资管理系统<br><small>{{huan}}</small></h1>
+        <span class="text-danger zu"><a href="logout">注销</a></span>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-2">
+            <ul class="nav nav-pills nav-stacked" style="width:120px">
+                <li role="presentation" ><a href="home">部门管理</a></li>
+                <li role="presentation" ><a href="position">职称管理</a></li>
+                <li role="presentation"  ><a href="salaryKind">工资类别管理</a></li>
+                <li role="presentation" ><a href="person">人员管理</a></li>
+                <li role="presentation" class="active"><a href="salary">人员工资管理</a></li>
+                <li role="presentation"><a href="statistics">工资统计</a></li>
+            </ul>
+
+        </div>
+        <div class="col-xs-10 ">
+            <div id="app">
+                <div class="panel panel-info">
+                    <div class="panel-heading">添加工资</div>
+                    <div class="panel-body">
+                        <span class="label label-primary">添加</span><br>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <input type="text" class="form-control" placeholder="人员ID" v-model="sal.for_person_id" />
+                            </div>
+                            <select  class="selectpicker" title="工资类型" data-size="5" v-model="sal.for_salary_kind_id" >
+
+                                <option v-bind:value="kind.salary_kind_id" v-for="kind in salarykinds">{{kind.salary_kind_name}}</option>
+
+                            </select>
+                            <div class="col-xs-3">
+                            <input type="text" class="form-control" placeholder="金额" v-model="sal.amount" />
+                            </div>
+                            <input id="data1" type="text" class="datepicker" placeholder="请选择日期" />
+
+                            <button type="button" class="btn btn-success" v-on:click="add">添加</button>
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+
+                <div class="panel panel-info">
+                    <div class="panel-heading">职称信息</div>
+                    <div class="panel-body">
+
+
+                        <table class="table table-bordered">
+                            <thead>
+                            <th>人员ID</th>
+                            <th>人员名字</th>
+                            <th>所属部门</th>
+                            <th>工资类型</th>
+                            <th>金额</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                            </thead>
+                            <tbody>
+                            <tr v-for="elen in salarys">
+                                <td>{{elen.person_id}}</td>
+                                <td>{{elen.person_name}}</td>
+                                <td>{{elen.department_name}}</td>
+                                <td>{{elen.salary_kind_name}}</td>
+                                <td>{{elen.amount}}</td>
+                                <td>{{elen.year}}-{{elen.month}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" @click="update(elen.salary_id,elen.person_id,elen.person_name,elen.department_name)">修改</button>
+                                    <button type="button" class="btn btn-danger" @click="deleteSalary(elen.salary_id)">删除</button>
+                                </td>
+                            </tr>
+
+
+                            </tbody>
+
+                        </table>
+
+                        <div class="bom">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    <li>
+                                        <a href="#" aria-label="Previous" @click="pre()">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li v-for="p in pagenum" ><a href="#"><span @click="list(p)">{{p}}</span></a></li>
+                                    <li>
+                                        <a href="#" aria-label="Next" @click="next()">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
+
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                                        <h4 class="modal-title">修改人员工资信息</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <span class="text-muted">姓名：</span><span class="text-muted" ref="name"></span><br>
+                                        <span class="text-muted">员工ID：</span><span class="text-muted" ref="pid"></span><br>
+                                        <span class="text-muted">所属部门：：</span><span class="text-muted" ref="depart"></span><br>
+                                        <select class="selectpicker" title="工资类型" v-model="up.for_salary_kind_id" data-width="150px" data-size="5">
+
+                                            <option v-bind:value="sal.salary_kind_id" v-for="sal in salarykinds">{{sal.salary_kind_name}}</option>
+
+                                        </select>
+                                        <div class="col-xs-3">
+                                        <input type="text" class="form-control" v-model="up.amount" placeholder="金额"/>
+                                        </div>
+                                        <input id="data2" type="text" class="datepicker" placeholder="请选择日期" />
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <span ref="tip" class="text-primary"></span>
+                                        <button data-dismiss="modal" class="btn btn-default" type="button">关闭</button>
+                                        <button class="btn btn-primary" type="button" @click="commit()">提交</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    axios.defaults.withCredentials = true;
+
+    var t=new Vue({
+        el:'#top',
+        data:{
+            huan:''
+        },
+        mounted:function(){
+            this.huan="欢迎您，"+sessionStorage.getItem("username");
+        }
+    })
+
+
+    //ViewModel
+    var de=new Vue({
+        el: '#app',
+        data:{
+            salarys:[],
+            departments:[],
+            salarykinds:[],
+            sal: { id:0 ,for_person_id:'',for_salary_kind_id:0, amount:'' ,year:0,month:0},
+            addname:'',
+            pagenum:'',
+            cupage:'',
+            page:{},
+            up: { salary_id: 0,for_person_id:'',for_salary_kind_id:0,amount:'' ,year:0,month:0 }
+        },
+        mounted:function(){
+            this.list(1);
+            $(".datepicker").datepicker({
+                language: "zh-CN",
+                autoclose: true,//选中之后自动隐藏日期选择框
+                format: "yyyy-mm",//日期格式
+                startView: 'months', //开始视图层，为月视图层
+                maxViewMode:'years', //最大视图层，为年视图层
+                minViewMode:'months', //最小视图层，为月视图层
+            });
+        },
+        methods: {
+            list: function(start){
+                var url1="salary/salaryall/"+start;
+                axios.get(url1).then(function(response){
+                    de.page=response.data;
+                    console.log(de.page);
+                    de.salarys=response.data.object.list;
+                    de.pagenum=response.data.object.pages;
+                    de.cupage=response.data.object.pageNum;
+                });
+                var url2="department/departmentall";
+                axios.get(url2).then(function (response) {
+                    de.page=response.data;
+                    console.log(de.page);
+                    de.departments=response.data.object;
+                    console.log(de.departments);
+                });
+                var url3="salaryKind/salarykindall";
+                axios.get(url3).then(function (response) {
+                    de.page=response.data;
+                    console.log(de.page);
+                    de.salarykinds=response.data.object;
+                    console.log(de.salarykinds);
+                })
+            },
+            pre:function(){
+                if(this.cupage==1){
+                    this.list(1);
+                    this.cupage=1;
+                }else{
+                    this.list(this.cupage-1);
+                    this.cupage=this.cupage-1;
+                }
+
+            },
+            next:function(){
+                if(this.cupage==this.pagenum){
+                    this.list(this.pagenum);
+                }
+                else{
+                    this.cupage=this.cupage+1;
+                    this.list(this.cupage);
+                }
+            },
+            add: function(event) {
+                var url="salary/addsalary";
+                var date=$("#data1").datepicker("getDate").toLocaleString();
+                var year=date.substring(0,4);
+                var month=date.substring(5,6);
+                this.sal.year=year;
+                this.sal.month=month;
+                axios.post(url,this.sal).then(function(response){
+                    var res=response.data;
+                    alert(res.msg);
+                    de.list(1);
+                    de.sal= { id:0 ,person_id:'',for_salary_kind_id:0,amount:'' ,year:0,month:0 }
+                });
+
+            },
+            deleteSalary: function (id) {
+                var url = "salary/deletesalary/"+id;
+                axios.get(url).then(function(response){
+                    de.list(1);
+                });
+            },
+            update: function (sid,pid,pname,dname) {
+                var _this = this;
+                de.up.salary_id=sid;
+                _this.$refs.name.innerHTML = pname;
+                _this.$refs.pid.innerHTML=pid;
+                _this.$refs.depart.innerHTML=dname;
+                $('.selectpicker').selectpicker('refresh');
+                _this.$refs.tip.innerHTML = '';
+            },
+            commit: function () {
+                var url="salary/updatesalary";
+                var date=$("#data1").datepicker("getDate").toLocaleString();
+                var year=date.substring(0,4);
+                var month=date.substring(5,6);
+                this.up.year=year;
+                this.up.month=month;
+                var _this = this;
+                axios.post(url,this.up).then(function(response){
+                    var res=response.data;
+                    console.log(res);
+                    _this.$refs.tip.innerHTML = res.msg;
+                    if(res.msg=="修改成功！"){
+                        de.list(1);
+                        de.up= { salary_id: 0,person_id:'',for_salary_kind_id:0,amount:'' ,year:0,month:0 }
+                    }
+                    else {
+                        de.list(1);
+                    }
+
+
+
+                });
+            }
+
+
+        }
+    })
+
+</script>
+</body>
+</html>

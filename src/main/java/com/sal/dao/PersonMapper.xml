@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sal.dao.PersonMapper">
+    <select id="selectPersonAll" resultType="Person">
+        SELECT `person_id`,
+        `person_name`,
+        `department_name`,
+        `position_name`
+        FROM
+        `person`,`department`,`position`
+        WHERE `for_department_id`=`department_id`AND `for_position_id`=`position_id`
+
+    </select>
+
+    <insert id="addPerson" parameterType="Person">
+        INSERT INTO `person` (
+           `person_name`,
+           `for_department_id`,
+           `for_position_id`
+        )
+        VALUES
+        (
+           #{person_name},
+           #{for_department_id},
+           #{for_position_id}
+        );
+    </insert>
+
+    <delete id="deletePerson" parameterType="int">
+        DELETE FROM `person` WHERE `person_id`=#{person_id}
+    </delete>
+
+    <update id="updatePerson" parameterType="Person">
+        UPDATE `person` SET `person_name`=#{person_name},
+        `for_department_id`=#{for_department_id},
+        `for_position_id`=#{for_position_id} WHERE `person_id`=#{person_id}
+    </update>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sal.dao.SalaryKindMapper">
+    <select id="selectSalayKindAll" resultType="SalaryKind">
+        SELECT * FROM `salary_kind`
+    </select>
+
+    <delete id="deleteSalayKind" parameterType="int">
+        DELETE FROM `salary_kind` WHERE `salary_kind_id`=#{salary_kind_id}
+    </delete>
+
+    <update id="updateSalayKind" parameterType="SalaryKind">
+        UPDATE `salary_kind` SET `salary_kind_name`=#{salary_kind_name} WHERE `salary_kind_id`=#{salary_kind_id}
+    </update>
+
+    <insert id="addSalayKind" parameterType="SalaryKind">
+        INSERT INTO `salary_kind` (`salary_kind_name`)
+        VALUES
+        (
+        #{salary_kind_name}
+        );
+    </insert>
+</mapper>
